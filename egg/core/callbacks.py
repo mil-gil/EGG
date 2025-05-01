@@ -11,7 +11,7 @@ import re
 import sys
 from collections import OrderedDict
 from typing import Any, Dict, Iterable, List, NamedTuple, Optional, Union
-
+import gc
 import torch
 import wandb
 from rich.columns import Columns
@@ -403,6 +403,10 @@ class CustomProgress(Progress):
 
         yield rendable
 
+class MemorySaver(Callback):
+    def on_epoch_end(self, loss: float, logs: Interaction, epoch: int):
+        gc.collect()  # Collect Python garbage
+        torch.cuda.empty_cache()  # Release PyTorch reserved memory
 
 class ProgressBarLogger(Callback):
     """
